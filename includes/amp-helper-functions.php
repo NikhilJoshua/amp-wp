@@ -194,35 +194,29 @@ function amp_init() {
 	 * Detects whether the current window is in an iframe with the specified `name` attribute. The iframe is created
 	 * by Preview component located in <assets/src/setup/pages/save/index.js>.
 	 */
+
+
 	add_action(
-		'wp_print_footer_scripts',
+		'wp_head',
 		function() {
-			if ( ! amp_is_dev_mode() || ! is_admin_bar_showing() ) {
-				return;
+			if ( isset( $_SERVER['HTTP_SEC_FETCH_DEST'] ) && 'iframe' === $_SERVER['HTTP_SEC_FETCH_DEST'] ) {
+				?>
+					<style>
+						html:not(#_) {
+							margin-top: 0 !important;
+						}
+						#wpadminbar {
+							display: none !important;
+						}
+					</style>
+					<?php
 			}
-			?>
-			<script data-ampdevmode>
-				document.addEventListener( 'DOMContentLoaded', function() {
-					if ( 'amp-wizard-completion-preview' !== window.name ) {
-						return;
-					}
-
-					/** @type {HTMLStyleElement} */
-					const style = document.createElement( 'style' );
-					style.setAttribute( 'type', 'text/css' );
-					style.appendChild( document.createTextNode( 'html:not(#_) { margin-top: 0 !important; } #wpadminbar { display: none !important; }' ) );
-					document.head.appendChild( style );
-
-					const adminBar = document.getElementById( 'wpadminbar' );
-					if ( adminBar ) {
-						document.body.classList.remove( 'admin-bar' );
-						adminBar.remove();
-					}
-				});
-			</script>
-			<?php
 		}
 	);
+
+
+
+
 }
 
 /**
