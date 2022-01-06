@@ -195,28 +195,40 @@ function amp_init() {
 	 * by Preview component located in <assets/src/setup/pages/save/index.js>.
 	 */
 
+	add_action( 'wp_head', 'amp_wp_remove_adminbar_onboard_iframe' );
+	add_action( 'amp_post_template_head', 'amp_wp_remove_adminbar_onboard_iframe' );
 
-	add_action(
-		'wp_head',
-		function() {
-			if ( isset( $_SERVER['HTTP_SEC_FETCH_DEST'] ) && 'iframe' === $_SERVER['HTTP_SEC_FETCH_DEST'] ) {
-				?>
-					<style>
-						html:not(#_) {
-							margin-top: 0 !important;
-						}
-						#wpadminbar {
-							display: none !important;
-						}
-					</style>
-					<?php
-			}
+	/*
+	 * Remove the adminbar on iframe preview of site in AMP Onboarding Wizard
+	 */
+	function amp_wp_remove_adminbar_onboard_iframe() {
+		if ( isset( $_SERVER['HTTP_SEC_FETCH_DEST'] ) && 'iframe' !== $_SERVER['HTTP_SEC_FETCH_DEST'] ) {
+			return;
 		}
-	);
+		?>
+		<style>
+			html:not(#_) {
+				margin-top: 0 !important;
+			}
+			#wpadminbar {
+				display: none !important;
+			}
+		</style>
+		<script type="text/javascript" data-ampdevmode >
+			document.addEventListener( 'DOMContentLoaded', function() {
+				if ( 'amp-wizard-completion-preview' !== window.name ) {
+					return;
+				}
+				const adminBar = document.getElementById( 'wpadminbar' );
+				if ( adminBar ) {
+					document.body.classList.remove( 'admin-bar' );
+					adminBar.remove();
+				}
 
-
-
-
+			} );
+		</script>
+		<?php
+	}
 }
 
 /**
